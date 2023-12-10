@@ -11,19 +11,9 @@ class MFM(nn.Module):
         outputs = torch.max(outputs[0], outputs[1])
         return outputs
 
-class FrontEnd(nn.Module):
-    def __init__(self):
-        super().__init__()
-
-    def forward(self, inputs):
-        outputs = torch.stft(inputs, n_fft=1724, win_length=1724, return_complex=False)
-        return outputs
-
 class LCNN(nn.Module):
     def __init__(self):
         super().__init__()
-
-        self.front = FrontEnd()
 
         self.feats = nn.ModuleList([
             nn.Sequential(
@@ -71,7 +61,7 @@ class LCNN(nn.Module):
             nn.Linear(80, 2)
         )
 
-    def forward(self, audio, spectrogram, **batch):
+    def forward(self, spectrogram, **batch):
         outputs = spectrogram.unsqueeze(1)
         for layer in self.feats:
             print(outputs.shape)
