@@ -7,7 +7,7 @@ class FinalLoss(torch.nn.Module):
 
         self.loss = torch.nn.CrossEntropyLoss()
 
-    def forward(self, prediction, target,
+    def forward(self, prediction, label,
                 **batch) -> Tensor:
 
-        return self.loss(prediction, target)
+        return self.loss(prediction, label)
