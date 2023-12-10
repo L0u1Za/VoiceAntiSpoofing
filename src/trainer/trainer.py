@@ -198,10 +198,10 @@ class Trainer(BaseTrainer):
 
     def _log_predictions(
             self,
-            text,
-            audio_pred,
             audio,
             audio_path,
+            prediction,
+            label,
             examples_to_log=10,
             *args,
             **kwargs,
@@ -210,15 +210,15 @@ class Trainer(BaseTrainer):
         if self.writer is None:
             return
 
-        tuples = list(zip(text, audio, audio_pred, audio_path))
+        tuples = list(zip(label, audio, prediction, audio_path))
         shuffle(tuples)
         rows = {}
-        for text_cur, audio_cur, audio_pred_cur, audio_path_cur in tuples[:examples_to_log]:
-
+        for label_cur, audio_cur, pred_cur, audio_path_cur in tuples[:examples_to_log]:
+            pred = torch.argmax(pred_cur)
             rows[Path(audio_path_cur).name] = {
-                "text": text_cur,
+                "label": "bonafide" if label_cur == 0 else "spoof",
                 "audio": self.writer.wandb.Audio(audio_cur.detach().cpu().numpy(), sample_rate=self.config["preprocessing"]["sr"]),
-                "predicted_audio": self.writer.wandb.Audio(audio_pred_cur.detach().cpu().numpy(), sample_rate=self.config["preprocessing"]["sr"])
+                "prediction": "bonafide" if pred == 0 else "spoof",
             }
         self.writer.add_table("predictions", pd.DataFrame.from_dict(rows, orient="index"))
 
