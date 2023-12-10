@@ -12,7 +12,7 @@ class BaseTrainer:
     Base class for all trainers
     """
 
-    def __init__(self, model: BaseModel, criterion, metrics, optimizer_gen, optimizer_disc, config, device):
+    def __init__(self, model: BaseModel, criterion, metrics, optimizer, config, device):
         self.device = device
         self.config = config
         self.logger = config.get_logger("trainer", config["trainer"]["verbosity"])
@@ -20,8 +20,7 @@ class BaseTrainer:
         self.model = model
         self.criterion = criterion
         self.metrics = metrics
-        self.optimizer_gen = optimizer_gen
-        self.optimizer_disc = optimizer_disc
+        self.optimizer = optimizer
 
         # for interrupt saving
         self._last_epoch = 0
@@ -142,8 +141,7 @@ class BaseTrainer:
             "arch": arch,
             "epoch": epoch,
             "state_dict": self.model.state_dict(),
-            "optimizer_gen": self.optimizer_gen.state_dict(),
-            "optimizer_dics": self.optimizer_disc.state_dict(),
+            "optimizer": self.optimizer.state_dict(),
             "monitor_best": self.mnt_best,
             "config": self.config,
         }
@@ -178,18 +176,15 @@ class BaseTrainer:
 
         # load optimizer state from checkpoint only when optimizer type is not changed.
         if (
-                checkpoint["config"]["optimizer_gen"] != self.config["optimizer_gen"] or
-                checkpoint["config"]["lr_scheduler_gen"] != self.config["lr_scheduler_gen"] or
-                checkpoint["config"]["optimizer_disc"] != self.config["optimizer_disc"] or
-                checkpoint["config"]["lr_scheduler_disc"] != self.config["lr_scheduler_disc"]
+                checkpoint["config"]["optimizer"] != self.config["optimizer"] or
+                checkpoint["config"]["lr_scheduler"] != self.config["lr_scheduler"]
         ):
             self.logger.warning(
                 "Warning: Optimizer or lr_scheduler given in config file is different "
                 "from that of checkpoint. Optimizer parameters not being resumed."
             )
         else:
-            self.optimizer_gen.load_state_dict(checkpoint["optimizer_gen"])
-            self.optimizer_disc.load_state_dict(checkpoint["optimizer_disc"])
+            self.optimizer.load_state_dict(checkpoint["optimizer"])
 
         self.logger.info(
             "Checkpoint loaded. Resume training from epoch {}".format(self.start_epoch)

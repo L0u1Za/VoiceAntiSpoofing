@@ -12,21 +12,18 @@ def collate_fn(dataset_items: List[dict]):
 
     num_items = len(dataset_items)
     max_audio_length = max([item['audio'].shape[1] for item in dataset_items])
-    max_spec_length = max([item['spectrogram'].shape[2] for item in dataset_items])
-    max_text_encoded_length = max([item['text_encoded'].shape[1] for item in dataset_items])
+    max_spec_length = 600
 
     audio, spectrogram = torch.zeros(num_items, max_audio_length), torch.zeros(num_items, dataset_items[0]['spectrogram'].shape[1], max_spec_length)
-    duration, text, audio_path = [], [], []
-    text_encoded = torch.zeros(num_items, max_text_encoded_length)
+    duration, audio_path = [], []
 
-    spectrogram_length, text_encoded_length = torch.tensor([item['spectrogram'].shape[2] for item in dataset_items], dtype=torch.int32), torch.tensor([item['text_encoded'].shape[1] for item in dataset_items], dtype=torch.int32)
-
+    spectrogram_length = torch.tensor([item['spectrogram'].shape[2] for item in dataset_items], dtype=torch.int32)
+    label = torch.zeros(num_items, dtype=torch.long)
     for i, item in enumerate(dataset_items):
         audio[i, :item['audio'].shape[1]] = item['audio'].squeeze(0)
-        spectrogram[i, :, :item['spectrogram'].shape[2]] = item['spectrogram'].squeeze(0)
-        text_encoded[i, :item['text_encoded'].shape[1]] = item['text_encoded'].squeeze(0)
+        spectrogram[i, :, :min(max_spec_length, item['spectrogram'].shape[2])] = item['spectrogram'].squeeze(0)[:, :min(max_spec_length, item['spectrogram'].shape[2])]
+        label[i] = item['label']
 
-        text.append(item['text'])
         duration.append(item['duration'])
         audio_path.append(item['audio_path'])
 
@@ -34,10 +31,8 @@ def collate_fn(dataset_items: List[dict]):
         "audio": audio,
         "spectrogram": spectrogram,
         "duration": duration,
-        "text": text,
-        "text_encoded": text_encoded,
         "audio_path": audio_path,
         "spectrogram_length": spectrogram_length,
-        "text_encoded_length": text_encoded_length
+        "label": label
     }
     return result_batch

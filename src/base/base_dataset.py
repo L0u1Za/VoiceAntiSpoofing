@@ -34,7 +34,7 @@ class BaseDataset(Dataset):
         self.log_spec = config_parser["preprocessing"]["log_spec"]
 
         self._assert_index_is_valid(index)
-        index = self._filter_records_from_dataset(index, max_audio_length, max_text_length, limit)
+        index = self._filter_records_from_dataset(index, max_audio_length, limit)
         # it's a good idea to sort index by audio length
         # It would be easier to write length-based batch samplers later
         index = self._sort_index(index)
@@ -73,22 +73,21 @@ class BaseDataset(Dataset):
         with torch.no_grad():
             if self.wave_augs is not None:
                 audio_tensor_wave = self.wave_augs(audio_tensor_wave)
-            wave2spec = MelSpectrogram()
-            #self.config_parser.init_obj(
-            #    self.config_parser["preprocessing"]["spectrogram"],
-            #    torchaudio.transforms,
-            #)
+            wave2spec = self.config_parser.init_obj(
+                self.config_parser["preprocessing"]["spectrogram"],
+                torchaudio.transforms,
+            )
             audio_tensor_spec = wave2spec(audio_tensor_wave)
             if self.spec_augs is not None:
                 audio_tensor_spec = self.spec_augs(audio_tensor_spec)
 
-            #if self.log_spec:
-            #    audio_tensor_spec = torch.log(audio_tensor_spec + 1e-5)
+            if self.log_spec:
+                audio_tensor_spec = torch.log(audio_tensor_spec + 1e-5)
             return audio_tensor_wave, audio_tensor_spec
 
     @staticmethod
     def _filter_records_from_dataset(
-            index: list, max_audio_length, max_text_length, limit
+            index: list, max_audio_length, limit
     ) -> list:
         initial_size = len(index)
         if max_audio_length is not None:
@@ -102,22 +101,8 @@ class BaseDataset(Dataset):
             exceeds_audio_length = False
 
         initial_size = len(index)
-        if max_text_length is not None:
-            exceeds_text_length = (
-                    np.array(
-                        [len(BaseTextEncoder.normalize_text(el["text"])) for el in index]
-                    )
-                    >= max_text_length
-            )
-            _total = exceeds_text_length.sum()
-            logger.info(
-                f"{_total} ({_total / initial_size:.1%}) records are longer then "
-                f"{max_text_length} characters. Excluding them."
-            )
-        else:
-            exceeds_text_length = False
 
-        records_to_filter = exceeds_text_length | exceeds_audio_length
+        records_to_filter = exceeds_audio_length
 
         if records_to_filter is not False and records_to_filter.any():
             _total = records_to_filter.sum()

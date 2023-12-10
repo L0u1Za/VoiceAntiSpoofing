@@ -51,25 +51,20 @@ def main(config):
 
     # build optimizer, learning rate scheduler. delete every line containing lr_scheduler for
     # disabling scheduler
-    trainable_params_gen = filter(lambda p: p.requires_grad, model.generator.parameters())
-    trainable_params_disc = filter(lambda p: p.requires_grad, list(model.discriminator1.parameters()) + list(model.discriminator2.parameters()))
-    optimizer_gen = config.init_obj(config["optimizer"], torch.optim, trainable_params_gen)
-    optimizer_disc = config.init_obj(config["optimizer"], torch.optim, trainable_params_disc)
-    lr_scheduler_gen = config.init_obj(config["lr_scheduler"], torch.optim.lr_scheduler, optimizer_gen)
-    lr_scheduler_disc = config.init_obj(config["lr_scheduler"], torch.optim.lr_scheduler, optimizer_disc)
+    trainable_params = filter(lambda p: p.requires_grad, model.parameters())
+    optimizer= config.init_obj(config["optimizer"], torch.optim, trainable_params)
+    lr_scheduler = config.init_obj(config["lr_scheduler"], torch.optim.lr_scheduler, optimizer)
 
     trainer = Trainer(
         model,
         loss_module,
         metrics,
-        optimizer_gen,
-        optimizer_disc,
+        optimizer,
         text_encoder=text_encoder,
         config=config,
         device=device,
         dataloaders=dataloaders,
-        lr_scheduler_gen=lr_scheduler_gen,
-        lr_scheduler_disc=lr_scheduler_disc,
+        lr_scheduler=lr_scheduler,
         len_epoch=config["trainer"].get("len_epoch", None)
     )
 

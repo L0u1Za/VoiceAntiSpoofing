@@ -1,5 +1,5 @@
-from src.model.hifigan import HiFiGAN
+from src.model.lcnn import LCNN
 
 __all__ = [
-    "HiFiGAN"
+    "LCNN"
 ]

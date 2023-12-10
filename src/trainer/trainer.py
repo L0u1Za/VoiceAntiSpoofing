@@ -27,18 +27,16 @@ class Trainer(BaseTrainer):
             model,
             criterion,
             metrics,
-            optimizer_gen,
-            optimizer_disc,
+            optimizer,
             config,
             device,
             dataloaders,
             text_encoder,
-            lr_scheduler_gen=None,
-            lr_scheduler_disc=None,
+            lr_scheduler=None,
             len_epoch=None,
             skip_oom=True,
     ):
-        super().__init__(model, criterion, metrics, optimizer_gen, optimizer_disc, config, device)
+        super().__init__(model, criterion, metrics, optimizer, config, device)
         self.skip_oom = skip_oom
         self.text_encoder = text_encoder
         self.config = config
@@ -51,15 +49,14 @@ class Trainer(BaseTrainer):
             self.train_dataloader = inf_loop(self.train_dataloader)
             self.len_epoch = len_epoch
         self.evaluation_dataloaders = {k: v for k, v in dataloaders.items() if k != "train"}
-        self.lr_scheduler_gen = lr_scheduler_gen
-        self.lr_scheduler_disc = lr_scheduler_disc
+        self.lr_scheduler = lr_scheduler
         self.log_step = 50
 
         self.train_metrics = MetricTracker(
-            "generator_loss", "discriminator_loss", "total_loss", "grad norm", *[m.name for m in self.metrics], writer=self.writer
+            "loss", "grad norm", *[m.name for m in self.metrics], writer=self.writer
         )
         self.evaluation_metrics = MetricTracker(
-            "generator_loss", "discriminator_loss", "total_loss", *[m.name for m in self.metrics], writer=self.writer
+            "loss", *[m.name for m in self.metrics], writer=self.writer
         )
 
     @staticmethod
@@ -67,7 +64,7 @@ class Trainer(BaseTrainer):
         """
         Move all necessary tensors to the HPU
         """
-        for tensor_for_gpu in ["spectrogram", "text_encoded", "audio"]:
+        for tensor_for_gpu in ["spectrogram", "label", "audio"]:
             batch[tensor_for_gpu] = batch[tensor_for_gpu].to(device)
         return batch
 
@@ -111,7 +108,7 @@ class Trainer(BaseTrainer):
                 self.writer.set_step((epoch - 1) * self.len_epoch + batch_idx)
                 self.logger.debug(
                     "Train Epoch: {} {} Loss: {:.6f}".format(
-                        epoch, self._progress(batch_idx), batch["total_loss"].item()
+                        epoch, self._progress(batch_idx), batch["loss"].item()
                     )
                 )
                 self.writer.add_scalar(
@@ -137,33 +134,24 @@ class Trainer(BaseTrainer):
     def process_batch(self, batch, is_train: bool, metrics: MetricTracker):
         batch = self.move_batch_to_device(batch, self.device)
         if is_train:
-            self.optimizer_gen.zero_grad()
-            self.optimizer_disc.zero_grad()
+            self.optimizer.zero_grad()
         outputs = self.model(**batch)
         if type(outputs) is dict:
             batch.update(outputs)
         else:
-            batch["audio_pred"] = outputs[0]
-            batch["disc_audio"] = outputs[1][0] + outputs[2][0]
-            batch["disc_audio_pred"] = outputs[1][1] + outputs[2][1]
-            batch["feat_target"] = outputs[1][2] + outputs[2][2]
-            batch["feat_pred"] = outputs[1][3] + outputs[2][3]
+            batch["prediction"] = outputs
 
+        batch["loss"] = self.criterion(**batch)
 
-        batch["generator_loss"], batch["discriminator_loss"] = self.criterion(**batch)
-        batch["total_loss"] = batch["generator_loss"] + batch["discriminator_loss"]
         if is_train:
-            batch["generator_loss"].backward(), batch["discriminator_loss"].backward()
+            batch["loss"].backward()
             self._clip_grad_norm()
-            self.optimizer_gen.step()
-            self.optimizer_disc.step()
-            if (self.lr_scheduler_gen is not None) and (self.lr_scheduler_disc is not None):
-                self.lr_scheduler_gen.step()
-                self.lr_scheduler_disc.step()
+            self.optimizer.step()
+            if (self.lr_scheduler is not None):
+                self.lr_scheduler.step()
 
-        metrics.update("total_loss", batch["total_loss"].item())
-        metrics.update("generator_loss", batch["generator_loss"].item())
-        metrics.update("discriminator_loss", batch["discriminator_loss"].item())
+        metrics.update("loss", batch["loss"].item())
+
         for met in self.metrics:
             metrics.update(met.name, met(**batch))
         return batch
