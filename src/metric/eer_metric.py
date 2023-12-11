@@ -16,6 +16,6 @@ class EERMetric(BaseMetric):
         bonafide_scores = prediction[label == 0, 0]
         other_scores = prediction[label == 1, 1]
 
-        eers, _ = compute_eer(bonafide_scores.detach().cpu().numpy(), other_scores.detach().cpu().numpy())
+        eer, _ = compute_eer(bonafide_scores.detach().cpu().numpy(), other_scores.detach().cpu().numpy())
 
-        return sum(eers) / len(eers)
+        return eer
