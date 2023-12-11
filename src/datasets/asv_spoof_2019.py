@@ -119,7 +119,7 @@ class ASVSpoof2019Dataset(BaseDataset):
             "audio": audio_wave,
             "spectrogram": audio_spec,
             "duration": audio_wave.size(1) / self.config_parser["preprocessing"]["sr"],
-            "label": 0 if data_dict["label"] == 'bonafide\n' else 1,
+            "label": 0 if data_dict["label"] == 'bonafide' else 1,
             "audio_path": audio_path,
         }
 

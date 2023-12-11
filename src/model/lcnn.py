@@ -1,5 +1,6 @@
 from torch import nn
 import torch
+from src.base.base_model import BaseModel
 
 class MFM(nn.Module):
     def __init__(self, channels):
@@ -11,7 +12,7 @@ class MFM(nn.Module):
         outputs = torch.max(outputs[0], outputs[1])
         return outputs
 
-class LCNN(nn.Module):
+class LCNN(BaseModel):
     def __init__(self):
         super().__init__()
 
