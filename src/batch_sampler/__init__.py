@@ -1,5 +1,5 @@
-from src.batch_sampler.group_sort_batch_sampler import GroupLengthBatchSampler
+from src.batch_sampler.batch_sampler import BatchSampler
 
 __all__ = [
-    "GroupLengthBatchSampler"
+    "BatchSampler"
 ]

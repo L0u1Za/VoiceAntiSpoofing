@@ -18,6 +18,5 @@ class EERMetric(BaseMetric):
         other_scores = prediction[label == 1, 1]
 
         eer, _ = compute_eer(bonafide_scores.detach().cpu().numpy(), other_scores.detach().cpu().numpy())
-        if np.isnan(eer):
-            eer = 0.0
+
         return eer

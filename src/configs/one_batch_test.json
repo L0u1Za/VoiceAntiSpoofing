@@ -22,40 +22,55 @@
   },
   "data": {
     "train": {
-      "batch_size": 2,
+      "batch_sampler": {
+        "type": "BatchSampler",
+        "args": {
+          "batch_size": 16
+        }
+      },
       "num_workers": 0,
       "datasets": [
         {
           "type": "ASVSpoof2019Dataset",
           "args": {
             "part": "train",
-            "limit": 2
+            "limit": 16
           }
         }
       ]
     },
     "val": {
-      "batch_size": 2,
+      "batch_sampler": {
+        "type": "BatchSampler",
+        "args": {
+          "batch_size": 16
+        }
+      },
       "num_workers": 0,
       "datasets": [
         {
           "type": "ASVSpoof2019Dataset",
           "args": {
             "part": "dev",
-            "limit": 2
+            "limit": 16
           }
         }
       ]
     },
     "test": {
-      "batch_size": 2,
+      "batch_sampler": {
+        "type": "BatchSampler",
+        "args": {
+          "batch_size": 16
+        }
+      },
       "num_workers": 0,
       "datasets": [
         {
           "type": "ASVSpoof2019Dataset",
           "args": {
             "part": "eval",
-            "limit": 2
+            "limit": 16
           }
         }
       ]

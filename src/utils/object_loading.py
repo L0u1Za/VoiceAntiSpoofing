@@ -55,9 +55,8 @@ def get_dataloaders(configs: ConfigParser, text_encoder: BaseTextEncoder):
 
         # create dataloader
         dataloader = DataLoader(
-            dataset, batch_size=bs, collate_fn=collate_fn,
-            shuffle=shuffle, num_workers=num_workers,
-            batch_sampler=batch_sampler, drop_last=drop_last
+            dataset, collate_fn=collate_fn, num_workers=num_workers,
+            batch_sampler=batch_sampler
         )
         dataloaders[split] = dataloader
     return dataloaders
