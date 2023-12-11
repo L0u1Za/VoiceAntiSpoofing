@@ -14,8 +14,8 @@ class EERMetric(BaseMetric):
         super().__init__(*args, **kwargs)
 
     def __call__(self, prediction: Tensor, label: Tensor, **kwargs):
-        bonafide_scores = prediction[label == 0, 0]
-        other_scores = prediction[label == 1, 1]
+        bonafide_scores = prediction[label == 0, :]
+        other_scores = prediction[label == 1, :]
 
         eer, _ = compute_eer(bonafide_scores.detach().cpu().numpy(), other_scores.detach().cpu().numpy())
 
