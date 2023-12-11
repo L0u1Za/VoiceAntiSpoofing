@@ -215,6 +215,7 @@ class Trainer(BaseTrainer):
         rows = {}
         for label_cur, audio_cur, pred_cur, audio_path_cur in tuples[:examples_to_log]:
             pred = torch.argmax(pred_cur)
+            print(pred)
             rows[Path(audio_path_cur).name] = {
                 "label": "bonafide" if label_cur == 0 else "spoof",
                 "audio": self.writer.wandb.Audio(audio_cur.detach().cpu().numpy(), sample_rate=self.config["preprocessing"]["sr"]),
