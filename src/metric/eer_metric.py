@@ -12,9 +12,9 @@ class EERMetric(BaseMetric):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def __call__(self, predictions: Tensor, labels: Tensor, **kwargs):
-        bonafide_scores = predictions[labels == 0, 0]
-        other_scores = predictions[labels == 1, 1]
+    def __call__(self, prediction: Tensor, label: Tensor, **kwargs):
+        bonafide_scores = prediction[label == 0, 0]
+        other_scores = prediction[label == 1, 1]
 
         eers, _ = compute_eer(bonafide_scores.detach().cpu().numpy(), other_scores.detach().cpu().numpy())
 

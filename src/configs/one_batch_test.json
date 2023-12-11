@@ -72,6 +72,12 @@
     "args": {}
   },
   "metrics": [
+    {
+      "type": "EERMetric",
+      "args": {
+        "name": "EERMetric"
+      }
+    }
   ],
   "lr_scheduler": {
     "type": "OneCycleLR",
