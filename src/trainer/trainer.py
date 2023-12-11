@@ -214,7 +214,7 @@ class Trainer(BaseTrainer):
         shuffle(tuples)
         rows = {}
         for label_cur, audio_cur, pred_cur, audio_path_cur in tuples[:examples_to_log]:
-            pred = torch.argmax(pred_cur)
+            pred = torch.argmax(pred_cur).item()
             print(pred)
             rows[Path(audio_path_cur).name] = {
                 "label": "bonafide" if label_cur == 0 else "spoof",
