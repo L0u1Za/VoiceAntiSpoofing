@@ -1,5 +1,5 @@
 from torch.utils.data import Sampler
-
+import torch
 
 class BatchSampler(Sampler):
     def __init__(self, data_source, batch_size):
@@ -13,7 +13,8 @@ class BatchSampler(Sampler):
     def __iter__(self):
         length = 0
         bonafide, spoof = [], []
-        for idx in range(len(self.data_source)):
+        indices = torch.randperm(len(self.data_source)).tolist()
+        for idx in indices:
             s = self.data_source[idx]
             if s["label"] == 0:
                 bonafide.append(idx)
