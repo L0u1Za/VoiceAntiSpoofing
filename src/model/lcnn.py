@@ -64,11 +64,7 @@ class LCNN(nn.Module):
     def forward(self, spectrogram, **batch):
         outputs = spectrogram.unsqueeze(1)
         for layer in self.feats:
-            print(outputs.shape)
             outputs = layer(outputs)
-        print(outputs.shape)
         outputs = outputs.flatten(1, -1)
-        print(outputs.shape)
         outputs = self.fc(outputs)
-        print(outputs.shape)
         return outputs
