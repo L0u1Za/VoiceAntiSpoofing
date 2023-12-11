@@ -22,7 +22,12 @@
   },
   "data": {
     "train": {
-      "batch_size": 2,
+      "batch_sampler": {
+        "type": "BatchSampler",
+        "args": {
+          "batch_size": 2
+        }
+      },
       "num_workers": 0,
       "datasets": [
         {
@@ -37,7 +42,12 @@
       ]
     },
     "val": {
-      "batch_size": 2,
+      "batch_sampler": {
+        "type": "BatchSampler",
+        "args": {
+          "batch_size": 2
+        }
+      },
       "num_workers": 0,
       "datasets": [
         {
@@ -52,7 +62,12 @@
       ]
     },
     "test": {
-      "batch_size": 2,
+      "batch_sampler": {
+        "type": "BatchSampler",
+        "args": {
+          "batch_size": 2
+        }
+      },
       "num_workers": 0,
       "datasets": [
         {
