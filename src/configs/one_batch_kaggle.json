@@ -35,7 +35,8 @@
           "args": {
             "data_dir": "/kaggle/input/asvpoof-2019-dataset",
             "index_dir": "/kaggle/working",
-            "part": "train"
+            "part": "train",
+            "limit": 100
           }
         }
       ]
@@ -54,7 +55,8 @@
           "args": {
             "data_dir": "/kaggle/input/asvpoof-2019-dataset",
             "index_dir": "/kaggle/working",
-            "part": "dev"
+            "part": "dev",
+            "limit": 100
           }
         }
       ]
@@ -73,7 +75,8 @@
           "args": {
             "data_dir": "/kaggle/input/asvpoof-2019-dataset",
             "index_dir": "/kaggle/working",
-            "part": "eval"
+            "part": "eval",
+            "limit": 100
           }
         }
       ]
