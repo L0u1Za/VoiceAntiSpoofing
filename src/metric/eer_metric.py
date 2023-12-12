@@ -13,10 +13,10 @@ class EERMetric(BaseMetric):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def __call__(self, prediction: Tensor, label: Tensor, **kwargs):
+    def __call__(self, prediction: np.ndarray, label: np.ndarray, **kwargs):
         bonafide_scores = prediction[label == 0, 0]
         other_scores = prediction[label == 1, 0]
-
-        eer, _ = compute_eer(bonafide_scores.detach().cpu().numpy(), other_scores.detach().cpu().numpy())
+        #.detach().cpu().numpy()
+        eer, _ = compute_eer(bonafide_scores, other_scores)
 
         return eer

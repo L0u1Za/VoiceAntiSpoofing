@@ -59,6 +59,8 @@ class Trainer(BaseTrainer):
             "loss", *[m.name for m in self.metrics], writer=self.writer
         )
 
+        self.all_predictions, self.all_labels = [], []
+
     @staticmethod
     def move_batch_to_device(batch, device: torch.device):
         """
@@ -84,6 +86,7 @@ class Trainer(BaseTrainer):
         self.model.train()
         self.train_metrics.reset()
         self.writer.add_scalar("epoch", epoch)
+
         for batch_idx, batch in enumerate(
                 tqdm(self.train_dataloader, desc="train", total=self.len_epoch)
         ):
@@ -114,6 +117,10 @@ class Trainer(BaseTrainer):
                 self.writer.add_scalar(
                     "learning rate", self.lr_scheduler.get_last_lr()[0]
                 )
+
+                self.train_metrics.set("EERMetric", self.metrics[0](self.all_predictions, self.all_labels))
+                self.all_labels, self.all_predictions = [], []
+
                 self._log_predictions(**batch)
                 self._log_spectrogram(batch["spectrogram"])
                 self._log_scalars(self.train_metrics)
@@ -140,6 +147,8 @@ class Trainer(BaseTrainer):
             batch.update(outputs)
         else:
             batch["prediction"] = outputs
+        self.all_predictions.extend(batch["prediction"].detach().cpu().numpy())
+        self.all_labels.extend(batch["label"].detach().cpu().numpy())
 
         batch["loss"] = self.criterion(**batch)
 
@@ -152,8 +161,8 @@ class Trainer(BaseTrainer):
 
         metrics.update("loss", batch["loss"].item())
 
-        for met in self.metrics:
-            metrics.update(met.name, met(**batch))
+        #for met in self.metrics:
+        #    metrics.update(met.name, met(**batch))
         return batch
 
     def _evaluation_epoch(self, epoch, part, dataloader):
@@ -165,6 +174,8 @@ class Trainer(BaseTrainer):
         """
         self.model.eval()
         self.evaluation_metrics.reset()
+        self.all_labels, self.all_predictions = [], []
+
         with torch.no_grad():
             for batch_idx, batch in tqdm(
                     enumerate(dataloader),
@@ -181,6 +192,8 @@ class Trainer(BaseTrainer):
             self._log_predictions(**batch)
             self._log_spectrogram(batch["spectrogram"])
 
+        self.evaluation_metrics.set("EERMetric", self.metrics[0](self.all_predictions, self.all_labels))
+        self.all_labels, self.all_predictions = [], []
         # add histogram of model parameters to the tensorboard
         for name, p in self.model.named_parameters():
             self.writer.add_histogram(name, p, bins="auto")
