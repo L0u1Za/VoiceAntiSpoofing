@@ -13,8 +13,8 @@ class EERMetric(BaseMetric):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def __call__(self, prediction: np.ndarray, label: np.ndarray, **kwargs):
-        print(prediction, label, sep='\n\n\n')
+    def __call__(self, prediction: list, label: list, **kwargs):
+        prediction, label = np.array(prediction), np.array(label)
         bonafide_scores = prediction[label == 0, 0]
         other_scores = prediction[label == 1, 0]
         #.detach().cpu().numpy()
