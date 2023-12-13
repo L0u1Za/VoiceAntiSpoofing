@@ -57,12 +57,12 @@ def main(config, out_file):
             all_predictions.extend(batch["prediction"].detach().cpu().numpy())
             all_labels.extend(batch["label"].detach().cpu().numpy())
 
-            for i in range(len(batch)):
+            for i in range(len(batch["audio_path"])):
                 results.append(
                     {
-                        "audio_path": batch[i]["audio_path"],
-                        "label": batch[i]["label"],
-                        "prediction": batch[i]["prediction"].argmax()
+                        "audio_path": batch["audio_path"][i],
+                        "label": batch["label"][i],
+                        "prediction": batch["prediction"][i].argmax()
                     }
                 )
     eer = metric(all_predictions, all_labels)
