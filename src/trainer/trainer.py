@@ -147,7 +147,7 @@ class Trainer(BaseTrainer):
             batch.update(outputs)
         else:
             batch["prediction"] = outputs
-        self.all_predictions.extend(batch["prediction"].detach().cpu().numpy())
+        self.all_predictions.extend(batch["prediction"].softmax(1).detach().cpu().numpy())
         self.all_labels.extend(batch["label"].detach().cpu().numpy())
 
         batch["loss"] = self.criterion(**batch)
@@ -187,13 +187,14 @@ class Trainer(BaseTrainer):
                     is_train=False,
                     metrics=self.evaluation_metrics,
                 )
+            self.evaluation_metrics.set("EERMetric", self.metrics[0](self.all_predictions, self.all_labels))
+            self.all_labels, self.all_predictions = [], []
+
             self.writer.set_step(epoch * self.len_epoch, part)
             self._log_scalars(self.evaluation_metrics)
             self._log_predictions(**batch)
             self._log_spectrogram(batch["spectrogram"])
 
-        self.evaluation_metrics.set("EERMetric", self.metrics[0](self.all_predictions, self.all_labels))
-        self.all_labels, self.all_predictions = [], []
         # add histogram of model parameters to the tensorboard
         for name, p in self.model.named_parameters():
             self.writer.add_histogram(name, p, bins="auto")
