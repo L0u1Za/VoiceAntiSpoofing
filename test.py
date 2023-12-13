@@ -54,15 +54,17 @@ def main(config, out_file):
                 batch.update(output)
             else:
                 batch["prediction"] = output
-            all_predictions.extend(batch["prediction"].detach().cpu().numpy())
+            all_predictions.extend(batch["prediction"].softmax(1).detach().cpu().numpy())
             all_labels.extend(batch["label"].detach().cpu().numpy())
 
             for i in range(len(batch["audio_path"])):
+                probs = batch["prediction"][i].softmax(0)
+                pred = probs.argmax().item()
                 results.append(
                     {
                         "audio_path": batch["audio_path"][i],
-                        "label": batch["label"][i],
-                        "prediction": batch["prediction"][i].argmax()
+                        "prediction": "bonafide" if pred == 0 else "spoof" ,
+                        "probability_spoofed": probs[1].item()
                     }
                 )
     eer = metric(all_predictions, all_labels)
@@ -146,7 +148,7 @@ if __name__ == "__main__":
         assert test_data_folder.exists()
         config.config["data"] = {
             "test": {
-                "batch_size": args.batch_size,
+                "batch_size": 1,
                 "num_workers": args.jobs,
                 "datasets": [
                     {

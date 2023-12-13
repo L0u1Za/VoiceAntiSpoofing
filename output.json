@@ -1,0 +1,32 @@
+[
+  {
+    "audio_path": "C:\\Users\\60130060\\VoiceAntiSpoofing\\test_data\\audio\\audio_2.flac",
+    "prediction": "spoof",
+    "probability_spoofed": 0.9998973608016968
+  },
+  {
+    "audio_path": "C:\\Users\\60130060\\VoiceAntiSpoofing\\test_data\\audio\\LA_T_1041717.flac",
+    "prediction": "bonafide",
+    "probability_spoofed": 0.021948859095573425
+  },
+  {
+    "audio_path": "C:\\Users\\60130060\\VoiceAntiSpoofing\\test_data\\audio\\LA_E_1002903.flac",
+    "prediction": "bonafide",
+    "probability_spoofed": 0.1642531305551529
+  },
+  {
+    "audio_path": "C:\\Users\\60130060\\VoiceAntiSpoofing\\test_data\\audio\\audio_3.flac",
+    "prediction": "spoof",
+    "probability_spoofed": 0.999539852142334
+  },
+  {
+    "audio_path": "C:\\Users\\60130060\\VoiceAntiSpoofing\\test_data\\audio\\audio_1.flac",
+    "prediction": "spoof",
+    "probability_spoofed": 1.0
+  },
+  {
+    "audio_path": "C:\\Users\\60130060\\VoiceAntiSpoofing\\test_data\\audio\\LJ001-0003.wav",
+    "prediction": "spoof",
+    "probability_spoofed": 0.9999868869781494
+  }
+]
