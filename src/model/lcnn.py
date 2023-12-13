@@ -56,13 +56,14 @@ class LCNN(BaseModel):
         ])
         self.fc = nn.Sequential(
             nn.Linear(53 * 37 * 32, 160),
-            nn.Dropout(0.75),
             MFM(80),
+            nn.Dropout(0.75),
             nn.BatchNorm1d(80),
             nn.Linear(80, 2)
         )
 
     def forward(self, spectrogram, **batch):
+        print(spectrogram.shape)
         outputs = spectrogram.unsqueeze(1)
         for layer in self.feats:
             outputs = layer(outputs)
