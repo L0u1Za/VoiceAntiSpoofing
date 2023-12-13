@@ -11,6 +11,7 @@ from src.trainer import Trainer
 from src.utils import ROOT_PATH
 from src.utils.object_loading import get_dataloaders
 from src.utils.parse_config import ConfigParser
+from src.metric.eer_metric import EERMetric
 
 DEFAULT_CHECKPOINT_PATH = ROOT_PATH / "default_test_model" / "checkpoint.pth"
 
@@ -28,7 +29,7 @@ def main(config, out_file):
     dataloaders = get_dataloaders(config, text_encoder)
 
     # build model architecture
-    model = config.init_obj(config["arch"], module_model, n_class=len(text_encoder))
+    model = config.init_obj(config["arch"], module_model)
     logger.info(model)
 
     logger.info("Loading checkpoint: {} ...".format(config.resume))
@@ -42,8 +43,9 @@ def main(config, out_file):
     model = model.to(device)
     model.eval()
 
+    metric = EERMetric()
     results = []
-
+    all_predictions, all_labels = [], []
     with torch.no_grad():
         for batch_num, batch in enumerate(tqdm(dataloaders["test"])):
             batch = Trainer.move_batch_to_device(batch, device)
@@ -51,25 +53,20 @@ def main(config, out_file):
             if type(output) is dict:
                 batch.update(output)
             else:
-                batch["logits"] = output
-            batch["log_probs"] = torch.log_softmax(batch["logits"], dim=-1)
-            batch["log_probs_length"] = model.transform_input_lengths(
-                batch["spectrogram_length"]
-            )
-            batch["probs"] = batch["log_probs"].exp().cpu()
-            batch["argmax"] = batch["probs"].argmax(-1)
-            for i in range(len(batch["text"])):
-                argmax = batch["argmax"][i]
-                argmax = argmax[: int(batch["log_probs_length"][i])]
+                batch["prediction"] = output
+            all_predictions.extend(batch["prediction"].detach().cpu().numpy())
+            all_labels.extend(batch["label"].detach().cpu().numpy())
+
+            for i in range(len(batch)):
                 results.append(
                     {
-                        "ground_trurh": batch["text"][i],
-                        "pred_text_argmax": text_encoder.ctc_decode(argmax.cpu().numpy()),
-                        "pred_text_beam_search": text_encoder.ctc_beam_search(
-                            batch["probs"][i], batch["log_probs_length"][i], beam_size=100
-                        )[:10],
+                        "audio_path": batch[i]["audio_path"],
+                        "label": batch[i]["label"],
+                        "prediction": batch[i]["prediction"].argmax()
                     }
                 )
+    eer = metric(all_predictions, all_labels)
+    print("EER:", eer)
     with Path(out_file).open("w") as f:
         json.dump(results, f, indent=2)
 
@@ -166,7 +163,7 @@ if __name__ == "__main__":
         }
 
     assert config.config.get("data", {}).get("test", None) is not None
-    config["data"]["test"]["batch_size"] = args.batch_size
+    #config["data"]["test"]["batch_size"] = args.batch_size
     config["data"]["test"]["n_jobs"] = args.jobs
 
     main(config, args.output)
