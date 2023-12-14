@@ -4,13 +4,13 @@
   "preprocessing": {
     "sr": 16000,
     "spectrogram": {
-      "type": "Spectrogram",
+      "type": "MelSpectrogram",
       "args": {
         "n_fft": 1724,
         "win_length": 1724
       }
     },
-    "log_spec": true
+    "log_spec": false
   },
   "augmentations": {
     "wave": [],
