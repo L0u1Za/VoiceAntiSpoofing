@@ -2,7 +2,7 @@
 
 ## Report
 
-You may see the report if you follow [this link](https://wandb.ai/l0u1za/nv_project/reports/Vocoder--Vmlldzo2MTUwNDMz?accessToken=a3uw6fk71k1ind39vg6diiiss63qswtd4f9h8u6m9sigusc91wxa5qqjkczqqlsg)
+You may see the report if you follow [this link](https://api.wandb.ai/links/l0u1za/7h6vtv2b)
 
 ## Installation guide
 
@@ -23,16 +23,24 @@ cd ./default_test_model
 
 It will be placed to `./default_test_model/checkpoint.pth`
 
-If you have some issues using bash utilities, you may download model directly from [google drive](https://drive.google.com/file/d/1ZAu0x9M6A_xAr-h_fCLjbZqSlB9WftNe/view?usp=sharing)
+If you have some issues using bash utilities, you may download model directly from [google drive](https://drive.google.com/file/d/1pdkOtX1fvfQucxvaFLkWi7uxR6fq7xSW/view?usp=sharing)
 
 
 ## Run test model with prepared configuration
 
+You may check this model on your data. Put your audio to test folder `test_data/audio`.
 ```shell
 python test.py \
-   -c default_test_model/config.json \
    -r default_test_model/checkpoint.pth \
    -t test_data \
+   -o test_result.json
+```
+
+Or you can check EER and predictions on ASVDataset. Then provide config link to arguments
+```shell
+python test.py \
+   -r default_test_model/checkpoint.pth \
+   -c default_test_config.json \
    -o test_result.json
 ```
 

@@ -2,122 +2,122 @@
   "name": "default_config",
   "n_gpu": 1,
   "preprocessing": {
-    "sr": 16000,
-    "spectrogram": {
-      "type": "Spectrogram",
-      "args": {
-        "n_fft": 1724,
-        "win_length": 1724
-      }
-    },
-    "log_spec": false
+      "sr": 16000,
+      "spectrogram": {
+          "type": "Spectrogram",
+          "args": {
+              "n_fft": 512,
+              "win_length": 512
+          }
+      },
+      "log_spec": false
   },
   "augmentations": {
-    "wave": [],
-    "spectrogram": []
+      "wave": [],
+      "spectrogram": []
   },
   "arch": {
-    "type": "LCNN",
-    "args": {}
+      "type": "LCNN",
+      "args": {}
   },
   "data": {
-    "train": {
-      "batch_sampler": {
-        "type": "BatchSampler",
-        "args": {
-          "batch_size": 16
-        }
+      "train": {
+          "batch_sampler": {
+              "type": "BatchSampler",
+              "args": {
+                  "batch_size": 16
+              }
+          },
+          "num_workers": 5,
+          "datasets": [
+              {
+                  "type": "ASVSpoof2019Dataset",
+                  "args": {
+                      "part": "train",
+                      "data_dir": "/kaggle/input/asvpoof-2019-dataset",
+                      "index_dir": "/kaggle/working"
+                  }
+              }
+          ]
       },
-      "num_workers": 5,
-      "datasets": [
-        {
-          "type": "ASVSpoof2019Dataset",
-          "args": {
-            "part": "train",
-            "data_dir": "/kaggle/input/asvpoof-2019-dataset",
-            "index_dir": "/kaggle/working"
-          }
-        }
-      ]
-    },
-    "val": {
-      "batch_sampler": {
-        "type": "BatchSampler",
-        "args": {
-          "batch_size": 16
-        }
+      "val": {
+          "batch_sampler": {
+              "type": "BatchSampler",
+              "args": {
+                  "batch_size": 16
+              }
+          },
+          "num_workers": 5,
+          "datasets": [
+              {
+                  "type": "ASVSpoof2019Dataset",
+                  "args": {
+                      "part": "dev",
+                      "data_dir": "/kaggle/input/asvpoof-2019-dataset",
+                      "index_dir": "/kaggle/working"
+                  }
+              }
+          ]
       },
-      "num_workers": 5,
-      "datasets": [
-        {
-          "type": "ASVSpoof2019Dataset",
-          "args": {
-            "part": "dev",
-            "data_dir": "/kaggle/input/asvpoof-2019-dataset",
-            "index_dir": "/kaggle/working"
-          }
-        }
-      ]
-    },
-    "test": {
-      "batch_sampler": {
-        "type": "BatchSampler",
-        "args": {
-          "batch_size": 16
-        }
-      },
-      "num_workers": 5,
-      "datasets": [
-        {
-          "type": "ASVSpoof2019Dataset",
-          "args": {
-            "part": "eval",
-            "data_dir": "/kaggle/input/asvpoof-2019-dataset",
-            "index_dir": "/kaggle/working"
-          }
-        }
-      ]
-    }
+      "test": {
+          "batch_sampler": {
+              "type": "BatchSampler",
+              "args": {
+                  "batch_size": 16
+              }
+          },
+          "num_workers": 5,
+          "datasets": [
+              {
+                  "type": "ASVSpoof2019Dataset",
+                  "args": {
+                      "part": "eval",
+                      "data_dir": "/kaggle/input/asvpoof-2019-dataset",
+                      "index_dir": "/kaggle/working"
+                  }
+              }
+          ]
+      }
   },
   "optimizer": {
-    "type": "Adam",
-    "args": {
-      "lr": 3e-4,
-      "betas": [0.9, 0.999]
-    }
+      "type": "Adam",
+      "args": {
+          "lr": 0.0003,
+          "betas": [
+              0.9,
+              0.999
+          ]
+      }
   },
   "loss": {
-    "type": "FinalLoss",
-    "args": {}
+      "type": "FinalLoss",
+      "args": {}
   },
   "metrics": [
-    {
-      "type": "EERMetric",
-      "args": {
-        "name": "EERMetric"
+      {
+          "type": "EERMetric",
+          "args": {
+              "name": "EERMetric"
+          }
       }
-    }
   ],
   "lr_scheduler": {
-    "type": "OneCycleLR",
-    "args": {
-      "steps_per_epoch": 5000,
-      "epochs": 10,
-      "anneal_strategy": "cos",
-      "max_lr": 3e-4,
-      "pct_start": 0.2
-    }
+      "type": "StepLR",
+      "args": {
+          "step_size": 2500,
+          "gamma": 0.5
+      }
   },
   "trainer": {
-    "epochs": 10,
-    "save_dir": "saved/",
-    "save_period": 5,
-    "verbosity": 2,
-    "monitor": "min val_loss",
-    "early_stop": 100,
-    "visualize": "wandb",
-    "wandb_project": "as_project",
-    "len_epoch": 5000,
-    "grad_norm_clip": 10
+      "epochs": 10,
+      "save_dir": "saved/",
+      "save_period": 1,
+      "verbosity": 2,
+      "monitor": "min val_loss",
+      "early_stop": 100,
+      "visualize": "wandb",
+      "wandb_project": "as_project",
+      "len_epoch": 2500,
+      "grad_norm_clip": 10
   }
 }
