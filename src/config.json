@@ -6,6 +6,7 @@
     "spectrogram": {
       "type": "MelSpectrogram",
       "args": {
+        "n_mels": 863,
         "n_fft": 1724,
         "win_length": 1724
       }
