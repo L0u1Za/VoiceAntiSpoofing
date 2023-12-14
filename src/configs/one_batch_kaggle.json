@@ -4,14 +4,10 @@
   "preprocessing": {
     "sr": 16000,
     "spectrogram": {
-      "type": "LFCC",
+      "type": "Spectrogram",
       "args": {
-        "n_filter": 20,
-        "n_lfcc": 863,
-        "speckwargs": {
-          "n_fft": 863,
-          "win_length": 20
-        }
+        "n_fft": 512,
+        "win_length": 512
       }
     },
     "log_spec": false

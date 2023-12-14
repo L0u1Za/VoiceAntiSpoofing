@@ -16,6 +16,9 @@ class LCNN(BaseModel):
     def __init__(self):
         super().__init__()
 
+
+        self.preprocess = nn.Linear(257, 60)
+
         self.feats = nn.ModuleList([
             nn.Sequential(
                 nn.Conv2d(1, 64, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2)),
@@ -55,7 +58,7 @@ class LCNN(BaseModel):
             )
         ])
         self.fc = nn.Sequential(
-            nn.Linear(53 * 37 * 32, 160),
+            nn.Linear(3 * 46 * 32, 160),
             MFM(80),
             nn.Dropout(0.75),
             nn.BatchNorm1d(80),
@@ -63,7 +66,8 @@ class LCNN(BaseModel):
         )
 
     def forward(self, spectrogram, **batch):
-        outputs = spectrogram.unsqueeze(1)
+        outputs = self.preprocess(spectrogram.transpose(1, 2)).transpose(1, 2)
+        outputs = outputs.unsqueeze(1)
         for layer in self.feats:
             outputs = layer(outputs)
         outputs = outputs.flatten(1, -1)

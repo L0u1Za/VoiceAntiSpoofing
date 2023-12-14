@@ -4,11 +4,10 @@
   "preprocessing": {
     "sr": 16000,
     "spectrogram": {
-      "type": "MelSpectrogram",
+      "type": "Spectrogram",
       "args": {
-        "n_mels": 863,
-        "n_fft": 1724,
-        "win_length": 1724
+        "n_fft": 512,
+        "win_length": 512
       }
     },
     "log_spec": false

@@ -12,7 +12,7 @@ def collate_fn(dataset_items: List[dict]):
 
     num_items = len(dataset_items)
     max_audio_length = max([item['audio'].shape[1] for item in dataset_items])
-    max_spec_length = 600
+    max_spec_length = 750
 
     audio, spectrogram = torch.zeros(num_items, max_audio_length), torch.zeros(num_items, dataset_items[0]['spectrogram'].shape[1], max_spec_length)
     duration, audio_path = [], []
