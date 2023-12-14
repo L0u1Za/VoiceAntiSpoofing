@@ -4,17 +4,13 @@
   "preprocessing": {
     "sr": 16000,
     "spectrogram": {
-      "type": "LFCC",
+      "type": "Spectrogram",
       "args": {
-        "n_filter": 20,
-        "n_lfcc": 863,
-        "speckwargs": {
-          "n_fft": 863,
-          "win_length": 20
-        }
+        "n_fft": 1724,
+        "win_length": 1724
       }
     },
-    "log_spec": false
+    "log_spec": true
   },
   "augmentations": {
     "wave": [],
@@ -105,12 +101,12 @@
   "lr_scheduler": {
     "type": "StepLR",
     "args": {
-      "step_size": 5000,
+      "step_size": 2500,
       "gamma": 0.5
     }
   },
   "trainer": {
-    "epochs": 5,
+    "epochs": 10,
     "save_dir": "saved/",
     "save_period": 1,
     "verbosity": 2,
@@ -118,7 +114,7 @@
     "early_stop": 100,
     "visualize": "wandb",
     "wandb_project": "as_project",
-    "len_epoch": 5000,
+    "len_epoch": 2500,
     "grad_norm_clip": 10
   }
 }
