@@ -60,6 +60,7 @@ class LCNN(BaseModel):
         self.fc = nn.Sequential(
             nn.Linear(3 * 46 * 32, 160),
             MFM(80),
+            nn.Dropout(0.75),
             nn.BatchNorm1d(80),
             nn.Linear(80, 2)
         )
